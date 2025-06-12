@@ -40,7 +40,7 @@ body {
 
 /* Styles for banner */
 #top-banner {
-  background: radial-gradient(circle, var(--banner-bg-start), var(--banner-bg-end) 60%);
+  background: radial-gradient(circle, var(--banner-bg-start), var(--banner-bg-end) 70%);
   /* background-color: var(--banner-bg-color); */
   padding: 25px;
 
@@ -49,7 +49,7 @@ body {
   text-align: center;
 }
 #banner-image {
-  width: 150px;
+  width: 250px;
   margin-bottom: 15px;
 }
 #banner-title {
