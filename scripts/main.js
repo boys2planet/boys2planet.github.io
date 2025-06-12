@@ -69,7 +69,7 @@ trainee: {
   image: ...
   selected: false/true // whether user selected them
   eliminated: false/true
-  top12: false/true
+  top8: false/true
 }
 */
 function convertCSVArrayToTraineeData(csvArrays) {
@@ -84,11 +84,13 @@ function convertCSVArrayToTraineeData(csvArrays) {
       trainee.name_hangul = traineeArray[2];
     }
     trainee.company = traineeArray[3];
-    trainee.grade = traineeArray[4];
-    trainee.birthyear = traineeArray[5];
-    trainee.eliminated = traineeArray[6] === 'e'; // sets trainee to be eliminated if 'e' appears in 6th col
-    trainee.top9 = traineeArray[6] === 't'; // sets trainee to top 12 if 't' appears in 6th column
-    trainee.id = parseInt(traineeArray[7]) - 1; // trainee id is the original ordering of the trainees in the first csv
+       trainee.nationality = traineeArray [4];
+    trainee.grade = traineeArray[5];
+    trainee.birthyear = traineeArray[6];
+	  
+    trainee.eliminated = traineeArray[7] === 'e'; // sets trainee to be eliminated if 'e' appears in 7th col
+    trainee.top8 = traineeArray[7] === 't'; // sets trainee to top 8 if 't' appears in 7th column
+    trainee.id = parseInt(traineeArray[8]) - 1; // trainee id is the original ordering of the trainees in the first csv
     trainee.image =
       trainee.name_romanized.replace(" ", "").replace("-", "") + ".jpg";
     return trainee;
@@ -103,6 +105,7 @@ function newTrainee() {
     id: -1, // -1 denotes a blank trainee spot
     name_romanized: '&#8203;', // this is a blank character
     company: '&#8203;', // this is a blank character
+    nationality: '&#8203;',
     grade: 'no',
     image: 'emptyrank.png',
   };
@@ -111,7 +114,7 @@ function newTrainee() {
 // Constructor for a blank ranking list
 function newRanking() {
   // holds the ordered list of rankings that the user selects
-  let ranking = new Array(12);
+  let ranking = new Array(8);
   for (let i = 0; i < ranking.length; i++) {
     ranking[i] = newTrainee();
   }
@@ -177,14 +180,14 @@ function populateTable(trainees) {
 function populateTableEntry(trainee) {
   // eliminated will have value "eliminated" only if trainee is eliminated and showEliminated is true, otherwise this is ""
   let eliminated = (showEliminated && trainee.eliminated) && "eliminated";
-  let top9 = (showTop9 && trainee.top9) && "top9";
+  let top8 = (showTop8 && trainee.top8) && "top8";
   const tableEntry = `
   <div class="table__entry ${eliminated}">
     <div class="table__entry-icon">
       <img class="table__entry-img" src="assets/trainees/${trainee.image}" />
       <div class="table__entry-icon-border ${trainee.grade.toLowerCase()}-rank-border"></div>
       ${
-        top9 ? '<div class="table__entry-icon-crown"></div>' : ''
+        top8 ? '<div class="table__entry-icon-crown"></div>' : ''
       }
       ${
         trainee.selected ? '<img class="table__entry-check" src="assets/check.png"/>' : ""
@@ -193,7 +196,7 @@ function populateTableEntry(trainee) {
     <div class="table__entry-text">
       <span class="name"><strong>${trainee.name_romanized}</strong></span>
       <span class="hangul">(${trainee.name_hangul})</span>
-      <span class="companyandyear">${trainee.company.toUpperCase()} •
+      <span class="nationalityandyear">${trainee.nationality.toUpperCase()} •
       ${trainee.birthyear}</span>
     </div>
   </div>`;
@@ -251,7 +254,7 @@ function populateRankingEntry(trainee, currRank) {
     modifiedCompany = abbreviatedCompanies[modifiedCompany];
   }
   let eliminated = (showEliminated && trainee.eliminated) && "eliminated";
-  let top9 = (showTop9 && trainee.top9) && "top9";
+  let top8 = (showTop8 && trainee.top8) && "top8";
   const rankingEntry = `
   <div class="ranking__entry ${eliminated}">
     <div class="ranking__entry-view">
@@ -261,7 +264,7 @@ function populateRankingEntry(trainee, currRank) {
       </div>
       <div class="ranking__entry-icon-badge bg-${trainee.grade.toLowerCase()}">${currRank}</div>
       ${
-        top9 ? '<div class="ranking__entry-icon-crown"></div>' : ''
+        top8 ? '<div class="ranking__entry-icon-crown"></div>' : ''
       }
     </div>
     <div class="ranking__row-text">
@@ -354,10 +357,9 @@ const alternateRomanizations = {
 // uses the current filter text to create a subset of trainees with matching info
 function filterTrainees(event) {
   let filterText = event.target.value.toLowerCase();
-  // filters trainees based on name, alternate names, and company
+  // filters trainees based on name, alternate names, company, nationality and birth year
   filteredTrainees = trainees.filter(function (trainee) {
-    let initialMatch = includesIgnCase(trainee.name_romanized, filterText) || includesIgnCase(trainee.company, filterText);
-    // if alernates exists then check them as well
+    let initialMatch = includesIgnCase(trainee.name_romanized, filterText) || includesIgnCase (trainee.company, filterText) || includesIgnCase (trainee.birthyear, filterText) || includesIgnCase (trainee.nationality, filterText);
     let alternateMatch = false;
     let alternates = alternateRomanizations[trainee.name_romanized.toLowerCase()]
     if (alternates) {
@@ -397,7 +399,7 @@ function removeRankedTrainee(trainee) {
   return false;
 }
 
-const currentURL = "https://gplanet999.github.io/";
+const currentURL = "https://boys2planet.github.io/";
 // Serializes the ranking into a string and appends that to the current URL
 function generateShareLink() {
   let shareCode = ranking.map(function (trainee) {
@@ -429,7 +431,7 @@ var trainees = [];
 var filteredTrainees = [];
 // holds the ordered list of rankings that the user selects
 var ranking = newRanking();
-const rowNums = [1, 3, 5];
+const rowNums = [1, 3, 4];
 //window.addEventListener("load", function () {
   populateRanking();
   readFromCSV("./trainee_info.csv");
